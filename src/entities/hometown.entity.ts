@@ -6,7 +6,4 @@ import { School } from "./school.entity.js";
 export class HomeTown extends BaseModel{
   @Column({ name: 'name', type: 'varchar', length: 100, unique: true })
   name?: string;
-
-  @OneToMany(() => School, (sch) => sch.hometown)
-  schools?: School[];
 }

@@ -7,7 +7,7 @@ export class District extends BaseModel {
   @Column({ name: 'name', type: 'varchar', length: 100 })
   name?: string;
 
-  @ManyToOne(() => Region, (region) => region.districts)
-  @JoinColumn({ name: 'regions' })
+  @ManyToOne(() => Region)
+  @JoinColumn({ name: 'regionId' })
   region?: Region;
 }

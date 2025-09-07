@@ -68,7 +68,7 @@ export class Student extends BaseModel {
   @Column({ name: 'health_conditions', type: 'enum', enum: HealthCondition, nullable: true })
   healthConditions?: HealthCondition;
 
-  @ManyToOne(() => Program, (program) => program.students)
-  @JoinColumn({ name: 'programs' })
+  @ManyToOne(() => Program)
+  @JoinColumn({ name: 'programId' })
   program?: Program;
 }

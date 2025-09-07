@@ -32,7 +32,7 @@ export class Admission extends BaseModel {
   @Column({ type: 'varchar' })
   key?: string;
 
-  @ManyToOne(() => Program, (program) => program.admissions)
-  @JoinColumn({ name: 'programs' })
+  @ManyToOne(() => Program)
+  @JoinColumn({ name: 'programId' })
   program?: Program;
 }

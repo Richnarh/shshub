@@ -7,7 +7,7 @@ export class School extends BaseModel{
     @Column({ name: 'name', type: 'varchar', length: 255, unique: true })
     name?: string;
 
-    @ManyToOne(() => HomeTown, (home) => home.schools)
-    @JoinColumn({ name: 'hometowns' })
+    @ManyToOne(() => HomeTown)
+    @JoinColumn({ name: 'hometownId' })
     hometown?: HomeTown;
 }
