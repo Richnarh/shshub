@@ -7,10 +7,10 @@ export const setupSchoolRoutes = (dataSource: DataSource) => {
     const schoolController = new SchoolController(dataSource);
     const router = express.Router();
     const upload = multer({ dest: 'uploads/' });
-    router.post('/:hometownId/school', schoolController.createSchoolInHometown.bind(schoolController));
-    router.put('/:hometownId/school', schoolController.createSchoolInHometown.bind(schoolController));
-    router.get('/:hometownId/school', schoolController.getSchoolInHometown.bind(schoolController));
-    router.delete('/:hometownId/school', schoolController.deleteSchoolInHometown.bind(schoolController));
+    router.post('/:hometownId', schoolController.createSchoolInHometown.bind(schoolController));
+    router.put('/:hometownId', schoolController.createSchoolInHometown.bind(schoolController));
+    router.get('/:hometownId', schoolController.getSchoolInHometown.bind(schoolController));
+    router.delete('/:hometownId', schoolController.deleteSchoolInHometown.bind(schoolController));
     router.get('/:hometownId/school/:id', schoolController.getSchoolById.bind(schoolController));
     router.delete('/:hometownId/school/:id', schoolController.deleteSchoolById.bind(schoolController));
 

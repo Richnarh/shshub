@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Admission Management API - NodeJS - Version: 1.0.0",
-    "description": "API for managing adminisions",
+    "title": "SHSHUB Management API - NodeJS - Version: 1.0.0",
+    "description": "API for managing admissions",
     "version": "1.0.0"
   },
   "servers": [
@@ -86,7 +86,7 @@
         "type": "object",
         "properties": {
           "id": { "type": "string" },
-          "regionId": { "type": "string" },
+          "region": { "type": "object" },
           "createdBy": { "type": "string" },
           "updatedBy": { "type": "string" },
           "createdAt": { "type": "string", "format": "date-time" },
@@ -98,7 +98,7 @@
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
-          "index_number": { "type": "string" },
+          "indexNumber": { "type": "string" },
           "name": { "type": "string" },
           "gender": { "$ref": "#/components/schemas/Gender" },
           "status": { "$ref": "#/components/schemas/Status" },
@@ -120,9 +120,36 @@
         "type": "object",
         "properties": {
           "id": { "type": "integer" },
-          "name": { "type": "string" }
+          "name": { "type": "string" },
+          "createdBy": { "type": "string" },
+          "updatedBy": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
         },
         "required": ["id", "name"]
+      },
+      "HomeTown": {
+        "type":"object",
+        "properties": {
+          "id":{"type":"string"},
+          "name": {"type": "string"},
+          "createdBy": { "type": "string" },
+          "updatedBy": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "School": {
+        "type":"object",
+        "properties": {
+          "id":{"type":"string"},
+          "name": {"type": "string"},
+          "hometown": { "type":"object" },
+          "createdBy": { "type": "string" },
+          "updatedBy": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
       },
       "Gender": {
         "type": "string",
@@ -425,6 +452,75 @@
         }
       }
     },
+    "/api/v1/admissions/{id}": {
+     "get": {
+       "summary": "Get admissions by ID",
+       "tags": ["Admissions"],
+       "security": [{ "BearerAuth": [] }],
+       "parameters": [
+         {
+           "name": "id",
+           "in": "path",
+           "required": true,
+           "schema": { "type": "string" }
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "Admission details",
+           "content": {
+             "application/json": {
+               "schema": { "$ref": "#/components/schemas/Admission" }
+             }
+           }
+         },
+         "404": {
+           "description": "Admission not found",
+           "content": {
+             "application/json": {
+               "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+             }
+           }
+         }
+       }
+     },
+     "delete": {
+       "summary": "Delete admission",
+       "tags": ["Admissions"],
+       "security": [{ "BearerAuth": [] }],
+       "parameters": [
+         {
+           "name": "id",
+           "in": "path",
+           "required": true,
+           "schema": { "type": "string" }
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "Admission deleted",
+           "content": {
+             "application/json": {
+               "schema": {
+                 "type": "object",
+                 "properties": {
+                   "message": { "type": "string" }
+                 }
+               }
+             }
+           }
+         },
+         "404": {
+           "description": "Admission not found",
+           "content": {
+             "application/json": {
+               "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+             }
+           }
+         }
+       }
+     }
+   },
     "/api/v1/admissions/upload": {
       "post": {
         "summary": "Upload spreadsheet",
@@ -432,8 +528,17 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/Admission" }
+             "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File containing admissions data"
+                  }
+                }
+              }
             }
           }
         },
@@ -443,75 +548,6 @@
           },
           "400": {
             "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
-              }
-            }
-          }
-        }
-      }
-    },
-     "/api/v1/adminisions/{id}": {
-      "get": {
-        "summary": "Get admissions by ID",
-        "tags": ["Admissions"],
-        "security": [{ "BearerAuth": [] }],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Admission details",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Admission" }
-              }
-            }
-          },
-          "404": {
-            "description": "Admission not found",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete admission",
-        "tags": ["Admissions"],
-        "security": [{ "BearerAuth": [] }],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Admission deleted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Admission not found",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/ErrorResponse" }
@@ -815,7 +851,7 @@
         }
       }
     },
-    "/api/v1/region/{regionId}/districts": {
+    "/api/v1/districts/{regionId}": {
       "post": {
         "summary": "Add a new district to a region",
         "tags": ["Districts"],
@@ -934,7 +970,7 @@
         }
       }
     },
-    "/api/v1/region/{regionId}/districts/{id}": {
+    "/api/v1/districts/{regionId}/districts/{id}": {
       "get": {
         "summary": "Get district by ID",
         "tags": ["Districts"],
@@ -994,6 +1030,413 @@
           },
           "404": {
             "description": "District not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/districts/upload": {
+      "post": {
+        "summary": "Upload spreadsheet",
+        "tags": ["Districts"],
+        "requestBody": {
+          "required": true,
+          "content": {
+             "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File containing districts and regions data"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Spreadsheet upload successful successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hometowns": {
+      "post": {
+        "summary": "Add a new Hometown",
+        "tags": ["HomeTowns"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/HomeTown" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Hometown created successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing hometown",
+        "tags": ["HomeTowns"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/HomeTown" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hometown updated successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all hometowns",
+        "tags": ["HomeTowns"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of hometowns",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/HomeTown" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hometowns/{id}": {
+      "get": {
+        "summary": "Get hometowns by ID",
+        "tags": ["HomeTowns"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hometowns details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Region" }
+              }
+            }
+          },
+          "404": {
+            "description": "Hometown not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete hometown",
+        "tags": ["HomeTowns"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hometown deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hometown not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{hometownId}": {
+      "post": {
+        "summary": "Add a new school to a hometown",
+        "tags": ["Schools"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/School" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "School created successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing School in a region",
+        "tags": ["Schools"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/School" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "School updated successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all school by hometownId",
+        "tags": ["Schools"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "School details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/School" }
+              }
+            }
+          },
+          "404": {
+            "description": "School not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete all schools in a hometown",
+        "tags": ["Schools"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "School deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "School not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{hometownId}/school/{id}": {
+      "get": {
+        "summary": "Get school by ID",
+        "tags": ["Schools"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "School details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/School" }
+              }
+            }
+          },
+          "404": {
+            "description": "School not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete school",
+        "tags": ["Schools"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "School deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "School not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/upload": {
+      "post": {
+        "summary": "Upload spreadsheet",
+        "tags": ["Schools"],
+        "requestBody": {
+          "required": true,
+          "content": {
+             "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File containing schools and hometown data"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Spreadsheet upload successful successfully"
+          },
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/ErrorResponse" }

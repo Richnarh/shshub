@@ -13,6 +13,8 @@ import { setupStudentRoutes } from './routes/studentRoutes.js';
 import { setupAdmissionRoutes } from './routes/admissionRoutes.js';
 import { setupRegionRoutes } from './routes/regionRoutes.js';
 import { setupDistrictRoutes } from './routes/districtRoutes.js';
+import { setupHometownRoutes } from './routes/hometownRoutes.js';
+import { setupSchoolRoutes } from './routes/schoolRoutes.js';
 
 const createApp = async (): Promise<express.Application> => {
   const dataSource: DataSource = await initializeDatabase();
@@ -42,7 +44,9 @@ const createApp = async (): Promise<express.Application> => {
     'students': () => setupStudentRoutes(dataSource),
     'admissions': () => setupAdmissionRoutes(dataSource),
     'regions': () => setupRegionRoutes(dataSource),
-    'districts': () => setupDistrictRoutes(dataSource)
+    'districts': () => setupDistrictRoutes(dataSource),
+    'hometowns': () => setupHometownRoutes(dataSource),
+    'schools': () => setupSchoolRoutes(dataSource),
   };
 
   Object.entries(routeConfigs).forEach(([path, setup]) => {

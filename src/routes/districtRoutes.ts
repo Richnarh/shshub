@@ -8,10 +8,10 @@ export const setupDistrictRoutes = (dataSource:DataSource) => {
     const router = express.Router();
     const districtController = new DistrictController(dataSource);
     const upload = multer({ dest: 'uploads/' });
-    router.post('/:regionId/districts', districtController.createDistrictsInRegion.bind(districtController));
-    router.put('/:regionId/districts', districtController.createDistrictsInRegion.bind(districtController));
-    router.get('/:regionId/districts', districtController.getDistrictsInRegion.bind(districtController));
-    router.delete('/:regionId/districts', districtController.deleteDistrictsInRegion.bind(districtController));
+    router.post('/:regionId', districtController.createDistrictsInRegion.bind(districtController));
+    router.put('/:regionId', districtController.createDistrictsInRegion.bind(districtController));
+    router.get('/:regionId', districtController.getDistrictsInRegion.bind(districtController));
+    router.delete('/:regionId', districtController.deleteDistrictsInRegion.bind(districtController));
     router.get('/:regionId/districts/:id', districtController.getDistrictsById.bind(districtController));
     router.delete('/:regionId/districts/:id', districtController.deleteDistrictById.bind(districtController));
 

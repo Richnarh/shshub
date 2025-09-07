@@ -15,9 +15,11 @@ export class HometownController{
         try {
             const town = req.body;
             const payload = this.hometownRepository.create(town);
-            const result = this.hometownRepository.save(payload);
+            const result = await this.hometownRepository.save(payload);
+            console.log('result: ', result)
             res.status(req.method === 'POST' ? HttpStatus.OK : HttpStatus.CREATED).json(result);
         } catch (error) {
+            console.log(error)
             next(error);
         }
     }

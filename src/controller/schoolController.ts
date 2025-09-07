@@ -28,8 +28,8 @@ export class SchoolController{
             if(!hometownId){
                 throw new AppError('HometownId is required', HttpStatus.BAD_REQUEST);
             }
-            const region = await this.ds.getHometownById(parseInt(hometownId));
-            data.region = region;
+            const hometown = await this.ds.getHometownById(parseInt(hometownId));
+            data.hometown = hometown;
             const payload = this.schoolRepository.create(data);
             const result = await this.schoolRepository.save(payload);
             res.status(req.method === 'POST' ? HttpStatus.CREATED : HttpStatus.OK).json(result);
