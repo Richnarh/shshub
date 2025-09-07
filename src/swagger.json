@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "SHSHUB Management API - NodeJS - Version: 1.0.0",
+    "title": "SHS Hub API - NodeJS - Version: 1.0.0",
     "description": "API for managing admissions",
     "version": "1.0.0"
   },

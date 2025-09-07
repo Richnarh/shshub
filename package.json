@@ -1,20 +1,30 @@
 {
   "name": "shshub",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "description": "A Node.js application for the shshub platform",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec tsx src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "build": "rm -rf dist && tsc",
+    "start": "NODE_ENV=production node dist/server.js",
+    "prestart:prod": "npm run build",
+    "start:prod": "NODE_ENV=production pm2 start dist/server.js --name asaride",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "node",
+    "express",
+    "typeorm",
+    "postgres"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
+    "@types/swagger-ui-dist": "^3.30.6",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
@@ -32,6 +42,7 @@
     "npm": "^11.4.2",
     "pg": "^8.16.3",
     "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-dist": "^5.28.1",
     "swagger-ui-express": "^5.0.1",
     "ulid": "^2.3.0",
     "winston": "^3.17.0",
