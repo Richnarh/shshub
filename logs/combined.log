@@ -1,3 +1,0 @@
-{"level":"info","message":"Database connected in development mode with connection pool","timestamp":"2025-09-06T21:03:07.821Z"}
-{"level":"info","message":"Server running on port 3000","timestamp":"2025-09-06T21:03:07.826Z"}
-{"level":"info","message":"Swagger UI available at http://localhost:3000/api/v1/docs","timestamp":"2025-09-06T21:03:07.826Z"}
