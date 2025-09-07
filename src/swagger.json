@@ -1,0 +1,1007 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Admission Management API - NodeJS - Version: 1.0.0",
+    "description": "API for managing adminisions",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Student": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "indexNumber": { "type": "string" },
+          "enrollmentCode": { "type": "string" },
+          "fullName": { "type": "string" },
+          "gender": { "$ref": "#/components/schemas/Gender" },
+          "dateOfBirth": { "type": "string", "format": "date-time" },
+          "placeOfBirth": { "type": "string" },
+          "region": { "type": "string" },
+          "district": { "type": "string" },
+          "homeTown": { "type": "string" },
+          "address": { "type": "string", "nullable": true },
+          "faithReligion": { "$ref": "#/components/schemas/Faith" },
+          "programId": { "type": "integer" },
+          "track": { "type": "string" },
+          "status": { "type": "string" },
+          "dateOfEnrolment": { "type": "string", "format": "date-time" },
+          "contact": { "type": "string", "nullable": true },
+          "ghanaCardNo": { "type": "string", "nullable": true },
+          "nhis": { "type": "string", "nullable": true },
+          "jhsCompleted": { "type": "string" },
+          "areasOfSports": { "type": "string", "nullable": true },
+          "healthConditions": { "$ref": "#/components/schemas/HealthCondition", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "indexNumber", "enrollmentCode", "fullName", "gender", "dateOfBirth", "placeOfBirth", "region", "district", "homeTown", "faithReligion", "programId", "track", "status", "dateOfEnrolment", "jhsCompleted", "createdAt", "updatedAt"]
+      },
+      "Guardian": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "firstName": { "type": "string" },
+          "middleName": { "type": "string", "nullable": true },
+          "lastName": { "type": "string" },
+          "gender": { "$ref": "#/components/schemas/Gender" },
+          "relationship": { "$ref": "#/components/schemas/Relationship" },
+          "occupation": { "type": "string" },
+          "phone": { "type": "string" },
+          "email": { "type": "string", "nullable": true },
+          "secondGuardian": { "$ref": "#/components/schemas/SecondGuardian", "nullable": true },
+          "createdBy": { "type": "string" },
+          "updatedBy": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "firstName", "lastName", "gender", "relationship", "occupation", "phone", "createdBy", "updatedBy", "createdAt", "updatedAt"]
+      },
+      "Region": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "createdBy": { "type": "string" },
+          "updatedBy": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "name", "createdBy", "updatedBy", "createdAt", "updatedAt"]
+      },
+      "District": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "regionId": { "type": "string" },
+          "createdBy": { "type": "string" },
+          "updatedBy": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "regionId", "createdBy", "updatedBy", "createdAt", "updatedAt"]
+      },
+      "Admission": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "index_number": { "type": "string" },
+          "name": { "type": "string" },
+          "gender": { "$ref": "#/components/schemas/Gender" },
+          "status": { "$ref": "#/components/schemas/Status" },
+          "programId": { "type": "integer" },
+          "track": { "$ref": "#/components/schemas/Track" },
+          "entryStatus": { "type": "integer" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "ip": { "type": "string" },
+          "key": { "type": "string" },
+          "lastupdated": { "type": "string", "format": "date-time" },
+          "createdBy": { "type": "string" },
+          "updatedBy": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "index_number", "name", "gender", "status", "programId", "track", "entryStatus", "timestamp", "ip", "key", "lastupdated", "createdBy", "updatedBy", "createdAt", "updatedAt"]
+      },
+      "Program": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" }
+        },
+        "required": ["id", "name"]
+      },
+      "Gender": {
+        "type": "string",
+        "enum": ["MALE", "FEMALE", "OTHER"]
+      },
+      "Faith": {
+        "type": "string",
+        "enum": ["CHRISTIAN", "MUSLIM", "OTHER"]
+      },
+      "HealthCondition": {
+        "type": "string",
+        "enum": ["NONE", "ASTHMA", "DIABETES", "OTHER"]
+      },
+      "Relationship": {
+        "type": "string",
+        "enum": ["PARENT", "GUARDIAN", "OTHER"]
+      },
+      "Status": {
+        "type": "string",
+        "enum": ["PENDING", "APPROVED", "REJECTED"]
+      },
+      "Track": {
+        "type": "string",
+        "enum": ["ACADEMIC", "VOCATIONAL", "TECHNICAL"]
+      },
+      "SecondGuardian": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string" },
+          "phone": { "type": "string" }
+        },
+        "required": ["firstName", "phone"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string"},
+          "message": { "type": "string"}
+        },
+        "required": ["status","message"]
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/students": {
+      "post": {
+        "summary": "Add a new student",
+        "tags": ["Students"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Student" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Student created successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing student",
+        "tags": ["Students"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Student" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student updated successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all students",
+        "tags": ["Students"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of students",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Student" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/students/{id}": {
+      "get": {
+        "summary": "Get student by ID",
+        "tags": ["Students"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Student" }
+              }
+            }
+          },
+          "404": {
+            "description": "Student not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete student",
+        "tags": ["Students"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Student not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/students/{indexNumber}/index": {
+      "get": {
+        "summary": "Get student by Index Number",
+        "tags": ["Students"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "indexNumber",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Student" }
+              }
+            }
+          },
+          "404": {
+            "description": "Student not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admissions": {
+      "post": {
+        "summary": "Add a new admission",
+        "tags": ["Admissions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Admission" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Admission created successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing admission",
+        "tags": ["Admissions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Admission" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Admission updated successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all admissions",
+        "tags": ["Admissions"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of admissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Admission" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admissions/upload": {
+      "post": {
+        "summary": "Upload spreadsheet",
+        "tags": ["Admissions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Admission" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Spreadsheet upload successful successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+     "/api/v1/adminisions/{id}": {
+      "get": {
+        "summary": "Get admissions by ID",
+        "tags": ["Admissions"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Admission details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Admission" }
+              }
+            }
+          },
+          "404": {
+            "description": "Admission not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete admission",
+        "tags": ["Admissions"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Admission deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Admission not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/guardians": {
+      "post": {
+        "summary": "Add a new guardian",
+        "tags": ["Guardians"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Guardian" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Guardian created successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing guardian",
+        "tags": ["Guardians"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Guardian" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Guardian updated successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all guardian",
+        "tags": ["Guardians"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of guardians",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Guardian" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/guardians/{id}": {
+      "get": {
+        "summary": "Get guardians by ID",
+        "tags": ["Guardians"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Guardian details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Guardian" }
+              }
+            }
+          },
+          "404": {
+            "description": "Guardian not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete guardian",
+        "tags": ["Guardians"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Guardian deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Guardian not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/regions": {
+      "post": {
+        "summary": "Add a new region",
+        "tags": ["Regions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Region" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Region created successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing region",
+        "tags": ["Regions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Region" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Region updated successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all regions",
+        "tags": ["Regions"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of guardians",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Region" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/region/{id}": {
+      "get": {
+        "summary": "Get regions by ID",
+        "tags": ["Regions"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Region details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Region" }
+              }
+            }
+          },
+          "404": {
+            "description": "Region not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete region",
+        "tags": ["Regions"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Region deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Region not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/region/{regionId}/districts": {
+      "post": {
+        "summary": "Add a new district to a region",
+        "tags": ["Districts"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/District" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "District created successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing district in a region",
+        "tags": ["Districts"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/District" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "District updated successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all districts by regionId",
+        "tags": ["Districts"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "District details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/District" }
+              }
+            }
+          },
+          "404": {
+            "description": "Region not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete all districts in a region",
+        "tags": ["Districts"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "District deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "District not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/region/{regionId}/districts/{id}": {
+      "get": {
+        "summary": "Get district by ID",
+        "tags": ["Districts"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "District details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/District" }
+              }
+            }
+          },
+          "404": {
+            "description": "Region not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete district",
+        "tags": ["Districts"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "District deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "District not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
