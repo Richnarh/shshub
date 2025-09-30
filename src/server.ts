@@ -61,7 +61,10 @@ const createApp = async (): Promise<express.Application> => {
   );
 
   app.use((req, res, next) => {
-    logger.info(`${req.method} ${baseApi}${req.url}`);
+    logger.info(`${req.method} ${req.url}`);
+    // console.log('Request params:', req.params);
+    // console.log('Request body:', req.body);
+    // console.log('Request file:', req.file);
     next();
   });
 

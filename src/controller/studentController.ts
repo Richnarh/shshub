@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import { StudentService } from '../services/studentService.js';
 import { NextFunction, Request, Response} from 'express';
 import { HttpStatus } from '../utils/constants.js';
+import { AppError } from '../utils/errors.js';
 
 export class StudentController {
   private readonly studentService: StudentService;
@@ -17,6 +18,7 @@ export class StudentController {
         res.status(id ? HttpStatus.OK : HttpStatus.CREATED).json(student);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -26,6 +28,7 @@ export class StudentController {
       res.status(HttpStatus.OK).json(students);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -35,6 +38,7 @@ export class StudentController {
       res.status(HttpStatus.OK).json(student);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -51,6 +55,7 @@ export class StudentController {
       res.status(HttpStatus.OK).json(student);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -60,6 +65,7 @@ export class StudentController {
       res.status(HttpStatus.OK).json(deletedStudent);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

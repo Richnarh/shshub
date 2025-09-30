@@ -18,6 +18,7 @@ export class AdmissionController {
       res.status(id ? HttpStatus.OK : HttpStatus.CREATED).json(admission);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -27,6 +28,7 @@ export class AdmissionController {
       res.status(HttpStatus.OK).json(admissions);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -36,6 +38,7 @@ export class AdmissionController {
       res.status(HttpStatus.OK).json(admission);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -52,6 +55,7 @@ export class AdmissionController {
       res.status(HttpStatus.OK).json(admission);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -61,6 +65,7 @@ export class AdmissionController {
       res.status(HttpStatus.OK).json(deletedAdmission);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -73,6 +78,7 @@ export class AdmissionController {
       res.status(HttpStatus.CREATED).json({count:admissions.length, message:'File upload successful'});
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 } 

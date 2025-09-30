@@ -21,6 +21,7 @@ export class HometownController{
         } catch (error) {
             console.log(error)
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     

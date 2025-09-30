@@ -1,4 +1,5 @@
 import { createReadStream } from 'fs';
+import { parse, format, isValid } from 'date-fns';
 import { parse as csvParse, Parser } from 'csv-parse';
 import * as xlsx from 'xlsx';
 
@@ -44,46 +45,60 @@ async function parseCSV<T extends Record<string, any>>(filePath: string,fieldTyp
                         if (!(field in convertedRow)) continue;
                         const value = convertedRow[field];
                         switch (type) {
-                            case 'number':
-                                const numValue = parseFloat(value);
-                                if (isNaN(numValue)) {
-                                    throw new Error(`Invalid number format for ${field}: ${value}`);
-                                }
-                                convertedRow[field] = numValue;
+                        case 'number':
+                            const numValue = parseFloat(value);
+                            if (isNaN(numValue)) {
+                            throw new Error(`Invalid number format for ${field}: ${value}`);
+                            }
+                            convertedRow[field] = numValue;
+                            break;
+                        case 'boolean':
+                            const boolValue = value?.toLowerCase();
+                            if (boolValue !== 'true' && boolValue !== 'false') {
+                            throw new Error(`Invalid boolean format for ${field}: ${value}`);
+                            }
+                            convertedRow[field] = boolValue === 'true';
+                            break;
+                        case 'date':
+                            if (!value || value.trim() === '') {
+                                convertedRow[field] = null;
+                            break;
+                            }
+                            const dateFormats = [
+                                'dd/MM/yyyy HH:mm', 
+                                'yyyy-MM-dd HH:mm:ss',
+                                'MM/dd/yyyy',
+                                'yyyy-MM-dd',
+                                'dd-MM-yyyy',
+                            ];
+                            let dateValue: Date | null = null;
+                            for (const format of dateFormats) {
+                            const parsed = parse(value, format, new Date());
+                            if (isValid(parsed)) {
+                                dateValue = parsed;
                                 break;
-                            case 'boolean':
-                                const boolValue = value?.toLowerCase();
-                                if (boolValue !== 'true' && boolValue !== 'false') {
-                                    throw new Error(`Invalid boolean format for ${field}: ${value}`);
-                                }
-                                convertedRow[field] = boolValue === 'true';
-                                break;
-                            case 'date':
-                                if (!value) {
-                                    convertedRow[field] = null;
-                                    break;
-                                }
-                                const dateValue = new Date(value);
-                                if (isNaN(dateValue.getTime())) {
-                                    throw new Error(`Invalid date format for ${field}: ${value}`);
-                                }
+                            }
+                            }
+                            if (!dateValue || isNaN(dateValue.getTime())) {
+                                throw new Error(`Invalid date format for ${field}: ${value}`);
+                            }
                                 convertedRow[field] = dateValue;
-                                break;
-                            case 'string':
-                            default:
-                                convertedRow[field] = value ?? '';
-                                break;
+                            break;
+                        case 'string':
+                        default:
+                            convertedRow[field] = value ?? '';
+                            break;
                         }
                     }
-                    results.push(convertedRow as T);
-                } catch (error) {
-                    reject(new Error(`Invalid row data: ${(error as Error).message}`));
-                    return;
-                }
-            })
-            .on('end', () => resolve(results))
-            .on('error', (error: Error) => reject(error));
-    });
+          results.push(convertedRow as T);
+        } catch (error) {
+          reject(new Error(`Invalid row data: ${(error as Error).message}`));
+          return;
+        }
+      })
+      .on('end', () => resolve(results))
+      .on('error', (error: Error) => reject(error));
+  });
 }
 async function parseExcel<T extends Record<string, any>>(filePath: string,fieldTypes?: FieldTypeConfig): Promise<T[]> {
     const typeConfig = fieldTypes ?? {};

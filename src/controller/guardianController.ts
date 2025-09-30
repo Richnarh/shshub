@@ -2,6 +2,7 @@ import { DataSource } from "typeorm";
 import { GuardianService } from "../services/guardianService.js";
 import { HttpStatus } from "../utils/constants.js";
 import { NextFunction, Request, Response } from "express";
+import { AppError } from "../utils/errors.js";
 
 export class GuardianController {
   private guardianService: GuardianService;
@@ -17,6 +18,7 @@ export class GuardianController {
       res.status(id ? HttpStatus.OK : HttpStatus.CREATED).json(guardian);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -26,6 +28,7 @@ export class GuardianController {
       res.status(HttpStatus.OK).json(guardians);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -35,6 +38,7 @@ export class GuardianController {
       res.status(HttpStatus.OK).json(guardian);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -44,6 +48,7 @@ export class GuardianController {
       res.status(HttpStatus.OK).json(deletedGuardian);
     } catch (error) {
       next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

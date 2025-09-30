@@ -35,6 +35,7 @@ export class DistrictController{
         } catch (error) {
             logger.error(error);
             next(next);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -50,6 +51,7 @@ export class DistrictController{
             res.status(HttpStatus.OK).json(districts);
         } catch (error) {
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
  
@@ -65,7 +67,8 @@ export class DistrictController{
             }
             res.status(HttpStatus.OK).json(deletedDistrict);
         } catch (error) {
-        next(error);
+            next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }   
 
@@ -85,6 +88,7 @@ export class DistrictController{
             res.status(HttpStatus.OK).json(district);
         } catch (error) {
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -107,14 +111,17 @@ export class DistrictController{
             res.status(HttpStatus.OK).json({ message: 'Districts deleted successfully' });
         } catch (error) {
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     async uploadDistricts(req: Request, res: Response, next: NextFunction) {
         try {
+            console.log('requst: ', req.file)
             if (!req.file) {
                 throw new AppError('File is required', HttpStatus.BAD_REQUEST);
             }
+            console.log('requesting....')
             const file = req.file;
             const filePath: string = file.path;
             const fileExtension: string = path.extname(file.originalname).toLowerCase();
@@ -126,6 +133,7 @@ export class DistrictController{
             } else {
                 throw new AppError('Unsupported file format', HttpStatus.BAD_REQUEST);
             }
+            console.log('records: ', records)
             const regionMap: { [regionName: string]: number | null | undefined } = {};
             for (const record of records) {
                 if(!regionMap[record.Region]){
@@ -136,7 +144,7 @@ export class DistrictController{
                         const result = this.regionRepository.create(region);
                         region = await this.regionRepository.save(result);
                     }
-                    regionMap[record.Region.replace('/\n\g','')] = region ? region.id : null;
+                    regionMap[record.Region.replace(/\n/g,'').trim()] = region ? region.id : null;
                 }
             }
             try {
@@ -159,8 +167,8 @@ export class DistrictController{
             }
             res.status(HttpStatus.CREATED).json({count:records.length, message:'File upload successful'});
         } catch (error) {
-            logger.error(error);
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

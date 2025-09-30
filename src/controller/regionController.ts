@@ -2,6 +2,7 @@ import { Request,Response,NextFunction } from "express";
 import { RegionService } from "../services/regionService.js";
 import { HttpStatus } from "../utils/constants.js";
 import { DataSource } from "typeorm";
+import { AppError } from "../utils/errors.js";
 
 export class RegionController{
     private regionService: RegionService;
@@ -16,6 +17,7 @@ export class RegionController{
             res.status(req.method === 'POST' ? HttpStatus.OK : HttpStatus.CREATED).json(region);
         } catch (error) {
         next(error);
+        throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -25,6 +27,7 @@ export class RegionController{
         res.status(HttpStatus.OK).json(regions);
         } catch (error) {
         next(error);
+        throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -37,6 +40,7 @@ export class RegionController{
             res.status(HttpStatus.OK).json(region);
         } catch (error) {
         next(error);
+        throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -49,6 +53,7 @@ export class RegionController{
             res.status(HttpStatus.OK).json(deletedRegion);
         } catch (error) {
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

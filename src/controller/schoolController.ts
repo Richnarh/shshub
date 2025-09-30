@@ -36,6 +36,7 @@ export class SchoolController{
         } catch (error) {
             logger.error(error);
             next(next);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -51,6 +52,7 @@ export class SchoolController{
             res.status(HttpStatus.OK).json(school);
         } catch (error) {
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
  
@@ -67,6 +69,7 @@ export class SchoolController{
             res.status(HttpStatus.OK).json(school);
         } catch (error) {
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }   
 
@@ -86,6 +89,7 @@ export class SchoolController{
             res.status(HttpStatus.OK).json(school);
         } catch (error) {
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -108,6 +112,7 @@ export class SchoolController{
             res.status(HttpStatus.OK).json({ message: 'schools deleted successfully' });
         } catch (error) {
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -162,6 +167,7 @@ export class SchoolController{
         } catch (error) {
             logger.error(error);
             next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
