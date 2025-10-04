@@ -20,6 +20,7 @@ import { setupSchoolRoutes } from './routes/schoolRoutes.js';
 import { setupClasses } from './routes/classRoutes.js';
 import { setupAccommodation } from './routes/accommodationRoutes.js';
 import { setupHouse } from './routes/houseRoutes.js';
+import { setupProgram } from './routes/programRoutes.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -78,6 +79,7 @@ const createApp = async (): Promise<express.Application> => {
     'classes': () => setupClasses(dataSource),
     'accommodations': () => setupAccommodation(dataSource),
     'houses': () => setupHouse(dataSource),
+    'programs': () => setupProgram(dataSource),
   };
 
   Object.entries(routeConfigs).forEach(([path, setup]) => {
