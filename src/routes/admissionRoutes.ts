@@ -12,6 +12,7 @@ export const setupAdmissionRoutes = (dataSource: DataSource) => {
     router.post('/', admissionController.createAdmission.bind(admissionController));
     router.put('/', admissionController.createAdmission.bind(admissionController));
     router.get('/', admissionController.getAllAdmissions.bind(admissionController));
+    router.get('/count', admissionController.getCount.bind(admissionController));
     router.get('/:id', admissionController.getAdmissionById.bind(admissionController));
     router.get('/:indexNumber/index', admissionController.getAdmissionByIndexNumber.bind(admissionController));
     router.delete('/:id', admissionController.deleteAdmission.bind(admissionController));

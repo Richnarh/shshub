@@ -6,18 +6,27 @@ import { logger } from "../utils/logger.js";
 import { HttpStatus } from "../utils/constants.js";
 import fs from 'fs';
 import path from 'path';
-import { DataSource, EntityManager, Repository } from "typeorm";
+import { DataSource, EntityManager, MoreThan, Repository } from "typeorm";
 import { Admission } from "../entities/admission.entity.js";
 import { Program } from "../entities/program.entity.js";
 import { AdmissionRecord, Gender, Status, Track } from "../models/model.js";
 import { parseCSV, parseExcel } from "../utils/utils.js";
+import { Accommodation } from "../entities/accommodation.js";
+import { Classes } from "../entities/classes.js";
+import { House } from "../entities/house.js";
 
 export class AdmissionService{
     private admissionRepository: Repository<Admission>;
     private programRepository:Repository<Program>
+    private accommodationRepository:Repository<Accommodation>
+    private classRepository:Repository<Classes>
+    private houseRepository:Repository<House>
     constructor(dataSource:DataSource) {
         this.admissionRepository = dataSource.getRepository(Admission);
         this.programRepository = dataSource.getRepository(Program);
+        this.accommodationRepository = dataSource.getRepository(Accommodation);
+        this.classRepository = dataSource.getRepository(Classes);
+        this.houseRepository = dataSource.getRepository(House);
     }
 
     async createAdmission(admission: Admission): Promise<Admission | null> {
@@ -39,9 +48,21 @@ export class AdmissionService{
         }
     }
 
+    async getCount(): Promise<number> {
+        try {
+            return await this.admissionRepository.count();
+        } catch (error) {
+            throw new AppError('Failed to fetch Admissions', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     async getAllAdmissions(): Promise<Admission[]> {
         try {
-            return await this.admissionRepository.find();
+            return await this.admissionRepository.find({
+                order:{
+                    createdAt: "DESC"
+                }
+            })
         } catch (error) {
             logger.error('Failed to fetch Admissions', { error });
             throw new AppError('Failed to fetch Admissions', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -125,41 +146,81 @@ export class AdmissionService{
     const toGender = (value: string): Gender => value.toUpperCase() as Gender;
     const toStatus = (value: string): Status => value.toUpperCase() as Status;
     const toTrack = (value: string): Track => value.toUpperCase() as Track;
-    debugger
+    
       try {
-        await this.admissionRepository.manager.transaction(async (transactionalEntityManager: EntityManager) => {
-
-        const savePromises = records.map(async (record: AdmissionRecord) => {
+        await this.admissionRepository.manager.transaction(async (transaction: EntityManager) => {
+        for (const record of records) {
             const programId = programIdMap[record.Program];
             if (!programId) {
-              throw new AppError(`Program Not found for: ${record.Index}`, HttpStatus.BAD_REQUEST);
+                throw new AppError(`Program Not found for: ${record.Index}`, HttpStatus.BAD_REQUEST);
             }
-
             const admission = new Admission();
             admission.indexNumber = record.Index?.replace(/\n/g, '');
             admission.name = record.Name.replace(/\n/g, '');
             admission.gender = toGender(record.Gender);
             admission.status = toStatus(record.Status);
-            admission.program =  await this.programRepository.findOne({ where: { name: record.Program }}) || undefined;
+            admission.program = (await transaction.findOne(Program, { where: { name: record.Program } })) || undefined;
             admission.track = toTrack(record.Track);
-            admission.timestamp = new Date(record.Timestamp)
-            admission.lastUpdated = new Date(record.LastUpdated)
-            admission.createdBy = record.CreatedBy ? record.CreatedBy?.replace(/\n/g, '') : ''
-            admission.updatedBy = record.UpdatedBy ? record.UpdatedBy?.replace(/\n/g, '') : ''
+            admission.timestamp = new Date(record.Timestamp);
+            admission.lastUpdated = new Date(record.LastUpdated);
+            admission.createdBy = record.CreatedBy ? record.CreatedBy.replace(/\n/g, '') : '';
+            admission.updatedBy = record.UpdatedBy ? record.UpdatedBy.replace(/\n/g, '') : '';
             admission.entryStatus = Number(record.EntryStatus) || 0;
             admission.ip = record.IP;
             admission.id = Number(record.ID);
             admission.key = record.Key;
 
-            return transactionalEntityManager.save(Admission, admission);
-        });
-        await Promise.all(savePromises);
+            const { acc, clazz, house } = await this.getAll(admission.status, transaction);
+
+            if (admission.status === 'BOARDING') {
+                admission.accommodation = acc ?? undefined;
+            }
+            admission.classes = clazz ?? undefined;
+            admission.house = house ?? undefined;
+
+            const savedRecord = await transaction.save(Admission, admission);
+
+            if (savedRecord) {
+                await this.updateAll(admission.status === 'BOARDING' ? acc : null, clazz, house,transaction);
+            }
+            }
         });
     } catch (error) {
-      console.log(error)
         throw new AppError(`upload error: ${error}`, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     fs.unlinkSync(filePath);
     return records;
   }
+
+    private async updateAll(acc: Accommodation | null, clazz: Classes | null, house: House | null, manager: EntityManager) {
+        if (acc && acc.numberOfSpace) {
+            acc.numberOfSpace = acc.numberOfSpace - 1;
+            await manager.save(Accommodation, acc);
+        }
+
+        if (clazz && clazz.numberOfSpace) {
+            clazz.numberOfSpace = clazz.numberOfSpace - 1;
+            await manager.save(Classes, clazz);
+        }
+
+        if (house && house.numberOfSpace) {
+            house.numberOfSpace = house.numberOfSpace - 1;
+            await manager.save(House, house);
+        }
+    }
+
+    private async getAll(status: Status, manager: EntityManager) {
+        const acc = status === 'BOARDING' ? await manager.findOne(Accommodation, { where: { numberOfSpace: MoreThan(0) }}) : null;
+
+        const clazz = await manager.findOne(Classes, {
+            where: { numberOfSpace: MoreThan(0) },
+        });
+
+        const house = await manager.findOne(House, {
+            where: { numberOfSpace: MoreThan(0) },
+        });
+
+        return { acc, clazz, house };
+    }
+
 }

@@ -17,6 +17,9 @@ import { setupRegionRoutes } from './routes/regionRoutes.js';
 import { setupDistrictRoutes } from './routes/districtRoutes.js';
 import { setupHometownRoutes } from './routes/hometownRoutes.js';
 import { setupSchoolRoutes } from './routes/schoolRoutes.js';
+import { setupClasses } from './routes/classRoutes.js';
+import { setupAccommodation } from './routes/accommodationRoutes.js';
+import { setupHouse } from './routes/houseRoutes.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -62,9 +65,6 @@ const createApp = async (): Promise<express.Application> => {
 
   app.use((req, res, next) => {
     logger.info(`${req.method} ${req.url}`);
-    // console.log('Request params:', req.params);
-    // console.log('Request body:', req.body);
-    // console.log('Request file:', req.file);
     next();
   });
 
@@ -75,6 +75,9 @@ const createApp = async (): Promise<express.Application> => {
     'districts': () => setupDistrictRoutes(dataSource),
     'hometowns': () => setupHometownRoutes(dataSource),
     'schools': () => setupSchoolRoutes(dataSource),
+    'classes': () => setupClasses(dataSource),
+    'accommodations': () => setupAccommodation(dataSource),
+    'houses': () => setupHouse(dataSource),
   };
 
   Object.entries(routeConfigs).forEach(([path, setup]) => {

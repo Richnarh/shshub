@@ -22,6 +22,16 @@ export class AdmissionController {
     }
   }
 
+  async getCount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const count = await this.admissionService.getCount();
+      res.status(HttpStatus.OK).json({count: count});
+    } catch (error) {
+      next(error);
+      throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async getAllAdmissions(req: Request, res: Response, next: NextFunction) {
     try {
       const admissions = await this.admissionService.getAllAdmissions();

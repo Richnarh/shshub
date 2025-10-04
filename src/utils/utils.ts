@@ -1,5 +1,5 @@
 import { createReadStream } from 'fs';
-import { parse, format, isValid } from 'date-fns';
+import { parse, isValid } from 'date-fns';
 import { parse as csvParse, Parser } from 'csv-parse';
 import * as xlsx from 'xlsx';
 
@@ -136,15 +136,29 @@ async function parseExcel<T extends Record<string, any>>(filePath: string,fieldT
                             convertedRow[field] = boolValue === 'true';
                             break;
                         case 'date':
-                            if (!value) {
+                            if (!value || value.trim() === '') {
                                 convertedRow[field] = null;
+                            break;
+                            }
+                            const dateFormats = [
+                                'dd/MM/yyyy HH:mm', 
+                                'yyyy-MM-dd HH:mm:ss',
+                                'MM/dd/yyyy',
+                                'yyyy-MM-dd',
+                                'dd-MM-yyyy',
+                            ];
+                            let dateValue: Date | null = null;
+                            for (const format of dateFormats) {
+                            const parsed = parse(value, format, new Date());
+                            if (isValid(parsed)) {
+                                dateValue = parsed;
                                 break;
                             }
-                            const dateValue = new Date(value);
-                            if (isNaN(dateValue.getTime())) {
+                            }
+                            if (!dateValue || isNaN(dateValue.getTime())) {
                                 throw new Error(`Invalid date format for ${field}: ${value}`);
                             }
-                            convertedRow[field] = dateValue;
+                                convertedRow[field] = dateValue;
                             break;
                         case 'string':
                         default:

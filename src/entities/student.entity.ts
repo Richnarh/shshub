@@ -38,9 +38,6 @@ export class Student extends BaseModel {
   @Column({ name: 'faith_religion', type: 'enum', enum: Faith })
   faithReligion?: Faith;
 
-  // @Column({ name: 'program_id' })
-  // programId?: number;
-
   @Column({ name: 'track', type: 'varchar', length: 100 })
   track?: string;
 

@@ -2,6 +2,9 @@ import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Gender, Status, Track } from '../models/model.js';
 import { Program } from './program.entity.js';
 import { BaseModel } from './basemodel.js';
+import { House } from './house.js';
+import { Classes } from './classes.js';
+import { Accommodation } from './accommodation.js';
 
 @Entity('admissions')
 export class Admission extends BaseModel {
@@ -31,6 +34,18 @@ export class Admission extends BaseModel {
 
   @Column({ type: 'varchar' })
   key?: string;
+
+  @ManyToOne(() => Accommodation)
+  @JoinColumn({ name: 'accommodationId' })
+  accommodation?: Accommodation;
+
+  @ManyToOne(() => Classes)
+  @JoinColumn({ name: 'classId' })
+  classes?: Classes;
+
+  @ManyToOne(() => House)
+  @JoinColumn({ name: 'houseId' })
+  house?: House;
 
   @ManyToOne(() => Program)
   @JoinColumn({ name: 'programId' })
