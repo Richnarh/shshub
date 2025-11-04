@@ -213,9 +213,17 @@
         "type": "string",
         "enum": ["PENDING", "APPROVED", "REJECTED"]
       },
+      "UserStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "INACTIVE" ,"PENDING", "SUSPENDED"]
+      },
       "Track": {
         "type": "string",
         "enum": ["ACADEMIC", "VOCATIONAL", "TECHNICAL"]
+      },
+      "Roles":{
+        "type": "string",
+        "enum": ["SUPER_ADMINISTRATOR", "ADMINISTRATOR", "EDITOR", "VIEWWER", "STUDENT", "PARENT"]
       },
       "SecondGuardian": {
         "type": "object",
@@ -224,6 +232,29 @@
           "phone": { "type": "string" }
         },
         "required": ["firstName", "phone"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "fullName": { "type": "string" },
+          "emailAddress": { "type": "string"},
+          "phoneNumber": { "type": "string" },
+          "password": { "type": "string" },
+          "profilePicture": { "type": "string" },
+          "roles": { "$ref": "#/components/schemas/Roles" },
+          "lastLogin": { "type": "string" },
+          "status": { "type": "string" }
+        },
+        "required": ["emailAddress", "fullName", "phoneNumber","password"]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "emailAddress": { "type": "string"},
+          "password": { "type": "string"}
+        },
+        "required": ["emailAddress", "password"]
       },
       "ErrorResponse": {
         "type": "object",
@@ -236,6 +267,126 @@
     }
   },
   "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "User login",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/User"}
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signup": {
+      "post": {
+        "summary": "User Signup",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/User" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Signup successful",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/User"}
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lookups/roles": {
+      "get": {
+        "summary": "Get all roles",
+        "tags": ["Lookups"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "All role enums",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Roles" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lookups/status": {
+      "get": {
+        "summary": "Get all statuses",
+        "tags": ["Lookups"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "All status enums",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/UserStatus" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/students": {
       "post": {
         "summary": "Add a new student",
@@ -906,6 +1057,39 @@
                     "message": { "type": "string" }
                   }
                 }
+              }
+            }
+          },
+          "404": {
+            "description": "Region not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/districts": {
+      "get": {
+        "summary": "Get districts and counts",
+        "tags": ["Districts"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Districts and counts",
+            "content": {
+              "application/json": {
+                "schema": { "type": "number", "$ref":"#/components/schemas/District" }
               }
             }
           },

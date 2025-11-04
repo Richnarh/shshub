@@ -11,11 +11,12 @@ export const setupDistrictRoutes = (dataSource:DataSource) => {
     router.post('/:regionId', districtController.createDistrictsInRegion.bind(districtController));
     router.put('/:regionId', districtController.createDistrictsInRegion.bind(districtController));
     router.get('/:regionId', districtController.getDistrictsInRegion.bind(districtController));
+    router.get('/', districtController.getDistrictsCount.bind(districtController));
     router.delete('/:regionId', districtController.deleteDistrictsInRegion.bind(districtController));
     router.get('/:regionId/districts/:id', districtController.getDistrictsById.bind(districtController));
     router.delete('/:regionId/districts/:id', districtController.deleteDistrictById.bind(districtController));
 
-    router.post('/upload', upload.single('file'), districtController.uploadDistricts.bind(districtController));
+    router.post('/', upload.single('file'), districtController.uploadDistricts.bind(districtController));
 
     return router;
 }

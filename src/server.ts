@@ -17,11 +17,13 @@ import { setupRegionRoutes } from './routes/regionRoutes.js';
 import { setupDistrictRoutes } from './routes/districtRoutes.js';
 import { setupHometownRoutes } from './routes/hometownRoutes.js';
 import { setupSchoolRoutes } from './routes/schoolRoutes.js';
-import { setupClasses } from './routes/classRoutes.js';
-import { setupAccommodation } from './routes/accommodationRoutes.js';
-import { setupHouse } from './routes/houseRoutes.js';
-import { setupProgram } from './routes/programRoutes.js';
-
+import { setupAccommodationRoutes } from './routes/accommodationRoutes.js';
+import { setupAuthRoutes } from './routes/authRoutes.js';
+import { setupHouseRoutes } from './routes/houseRoutes.js';
+import { setupLookupRoutes } from './routes/lookupRoutes.js';
+import { setupProgramRoutes } from './routes/programRoutes.js';
+import { setupUserRoutes } from './routes/userRoutes.js';
+import { setupClassesRoutes } from './routes/classRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,16 +72,19 @@ const createApp = async (): Promise<express.Application> => {
   });
 
   const routeConfigs = {
+    'auth': () => setupAuthRoutes(dataSource),
     'students': () => setupStudentRoutes(dataSource),
     'admissions': () => setupAdmissionRoutes(dataSource),
     'regions': () => setupRegionRoutes(dataSource),
     'districts': () => setupDistrictRoutes(dataSource),
     'hometowns': () => setupHometownRoutes(dataSource),
     'schools': () => setupSchoolRoutes(dataSource),
-    'classes': () => setupClasses(dataSource),
-    'accommodations': () => setupAccommodation(dataSource),
-    'houses': () => setupHouse(dataSource),
-    'programs': () => setupProgram(dataSource),
+    'classes': () => setupClassesRoutes(dataSource),
+    'accommodations': () => setupAccommodationRoutes(dataSource),
+    'houses': () => setupHouseRoutes(dataSource),
+    'programs': () => setupProgramRoutes(dataSource),
+    'users': () => setupUserRoutes(dataSource),
+    'lookups': () => setupLookupRoutes(dataSource),
   };
 
   Object.entries(routeConfigs).forEach(([path, setup]) => {

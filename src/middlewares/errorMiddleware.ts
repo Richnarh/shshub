@@ -12,13 +12,13 @@ export const errorMiddleware = (error: Error, req: Request, res: Response, next:
     });
     res.status(error.statusCode).json({
       status: 'error',
-      message: error.message,
+      message: error,
     });
   }
 
   // logger.error('Unexpected error:', error);
-  res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-    status: 'error',
-    message: 'Internal server error',
-  });
+  // res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+  //   status: 'error',
+  //   message: 'Internal server error',
+  // });
 };

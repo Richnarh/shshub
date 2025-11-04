@@ -34,7 +34,7 @@ export class DistrictController{
             res.status(req.method === 'POST' ? HttpStatus.CREATED : HttpStatus.OK).json(result);
         } catch (error) {
             logger.error(error);
-            next(next);
+            next(error);
             throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -49,6 +49,19 @@ export class DistrictController{
                 where: { region: { id: parseInt(regionId) } }
             });
             res.status(HttpStatus.OK).json(districts);
+        } catch (error) {
+            next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    getDistrictsCount = async (req: Request, res: Response, next: NextFunction)=>{
+        try {
+            const [districts, count] =  await this.districtRepository.findAndCount({ 
+                select: ['id', 'name'], 
+                order: { name: 'ASC' } 
+            });
+            res.status(HttpStatus.OK).json({count, districts});
         } catch (error) {
             next(error);
             throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -117,11 +130,9 @@ export class DistrictController{
 
     async uploadDistricts(req: Request, res: Response, next: NextFunction) {
         try {
-            console.log('requst: ', req.file)
             if (!req.file) {
                 throw new AppError('File is required', HttpStatus.BAD_REQUEST);
             }
-            console.log('requesting....')
             const file = req.file;
             const filePath: string = file.path;
             const fileExtension: string = path.extname(file.originalname).toLowerCase();
@@ -133,7 +144,6 @@ export class DistrictController{
             } else {
                 throw new AppError('Unsupported file format', HttpStatus.BAD_REQUEST);
             }
-            console.log('records: ', records)
             const regionMap: { [regionName: string]: number | null | undefined } = {};
             for (const record of records) {
                 if(!regionMap[record.Region]){
@@ -167,6 +177,7 @@ export class DistrictController{
             }
             res.status(HttpStatus.CREATED).json({count:records.length, message:'File upload successful'});
         } catch (error) {
+            console.log(error);
             next(error);
             throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }

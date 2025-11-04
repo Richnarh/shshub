@@ -1,7 +1,12 @@
 node_modules
 # Keep environment variables out of version control
 .env
+.env.development
+.env.production
 .vscode
 /logs
 /generated/prisma
 /dist
+/uploads
+deploy.sh
+package-lock.json

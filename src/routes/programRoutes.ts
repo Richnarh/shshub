@@ -2,7 +2,7 @@ import express from 'express';
 import { DataSource } from 'typeorm';
 import { ProgramController } from '../controller/programController.js';
 
-export const setupProgram = (datasource:DataSource) => {
+export const setupProgramRoutes = (datasource:DataSource) => {
     const router = express.Router();
     const programController = new ProgramController(datasource);
 

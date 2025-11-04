@@ -2,7 +2,7 @@ import express from 'express';
 import { DataSource } from 'typeorm';
 import { HouseController } from '../controller/houseController.js';
 
-export const setupHouse = (datasource:DataSource) => {
+export const setupHouseRoutes = (datasource:DataSource) => {
     const router = express.Router();
     const houseController = new HouseController(datasource);
 

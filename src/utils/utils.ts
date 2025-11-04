@@ -1,7 +1,7 @@
 import { createReadStream } from 'fs';
 import { parse, isValid } from 'date-fns';
 import { parse as csvParse, Parser } from 'csv-parse';
-import * as xlsx from 'xlsx';
+import xlsx from 'xlsx';
 
 interface FieldTypeConfig {
     [key: string]: 'string' | 'number' | 'boolean' | 'date';
