@@ -48,8 +48,8 @@ export class HouseController{
 
     async getAllHouses(req: Request, res: Response, next: NextFunction) {
     try {
-      const Housees = await this.houseRepository.find();
-      res.status(HttpStatus.OK).json(Housees);
+      const [house, count] = await this.houseRepository.findAndCount();
+      res.status(HttpStatus.OK).json({count, data:house});
     } catch (error) {
       next(error);
       throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);

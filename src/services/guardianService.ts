@@ -33,9 +33,9 @@ export class GuardianService{
         }
     }
 
-    async getAllGuardians(): Promise<Guardian[]> {
+    async getAllGuardians(): Promise<[Guardian[], count:number]> {
         try {
-            return await this.guadianRepository.find();
+            return await this.guadianRepository.findAndCount();
         } catch (error) {
             throw new AppError('Failed to fetch guardians',HttpStatus.NOT_FOUND);
         }

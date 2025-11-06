@@ -34,7 +34,7 @@ export class StudentService{
 
     async getAllStudents(){
         try {
-            return await this.studentRepository.find();
+            return await this.studentRepository.findAndCount();
         } catch (error) {
         throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }

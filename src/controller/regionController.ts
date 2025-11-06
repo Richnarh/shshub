@@ -23,8 +23,8 @@ export class RegionController{
     
     async getAllRegions(req: Request, res: Response, next: NextFunction) {
         try {
-        const regions = await this.regionService.getAllRegions();
-        res.status(HttpStatus.OK).json(regions);
+        const [regions, count] = await this.regionService.getAllRegions();
+        res.status(HttpStatus.OK).json({count, data:regions});
         } catch (error) {
         next(error);
         throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);

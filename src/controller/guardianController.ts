@@ -24,8 +24,8 @@ export class GuardianController {
 
   async getAllGuardians(req: Request, res: Response, next: NextFunction) {
     try {
-      const guardians = await this.guardianService.getAllGuardians();
-      res.status(HttpStatus.OK).json(guardians);
+      const [guardians, count] = await this.guardianService.getAllGuardians();
+      res.status(HttpStatus.OK).json({count, data:guardians});
     } catch (error) {
       next(error);
       throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);

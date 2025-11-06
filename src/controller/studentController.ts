@@ -24,8 +24,8 @@ export class StudentController {
 
   async getAllStudents(req:Request, res:Response, next:NextFunction) {
     try {
-      const students = await this.studentService.getAllStudents();
-      res.status(HttpStatus.OK).json(students);
+      const [students, count] = await this.studentService.getAllStudents();
+      res.status(HttpStatus.OK).json({count, data:students});
     } catch (error) {
       next(error);
       throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);

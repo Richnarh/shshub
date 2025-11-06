@@ -49,10 +49,10 @@ export class SchoolController{
             if (!districtId) {
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: 'DistrictId is required' });
             }
-            const school =  await this.schoolRepository.find({
+            const [school, count] =  await this.schoolRepository.findAndCount({
                 where: { district: { id: parseInt(districtId) } }
             });
-            res.status(HttpStatus.OK).json(school);
+            res.status(HttpStatus.OK).json({ count, data: school});
         } catch (error) {
             next(error);
             throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);

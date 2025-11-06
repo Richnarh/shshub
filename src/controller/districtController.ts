@@ -45,10 +45,10 @@ export class DistrictController{
             if (!regionId) {
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Region ID is required' });
             }
-            const districts =  await this.districtRepository.find({
+            const [districts, count] =  await this.districtRepository.findAndCount({
                 where: { region: { id: parseInt(regionId) } }
             });
-            res.status(HttpStatus.OK).json(districts);
+            res.status(HttpStatus.OK).json({count, data:districts});
         } catch (error) {
             next(error);
             throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -61,7 +61,7 @@ export class DistrictController{
                 select: ['id', 'name'], 
                 order: { name: 'ASC' } 
             });
-            res.status(HttpStatus.OK).json({count, districts});
+            res.status(HttpStatus.OK).json({count, data:districts});
         } catch (error) {
             next(error);
             throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);

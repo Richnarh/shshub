@@ -49,8 +49,8 @@ export class ClassController{
 
     async getAllClass(req: Request, res: Response, next: NextFunction) {
     try {
-      const classes = await this.classRepository.find();
-      res.status(HttpStatus.OK).json(classes);
+      const [classes, count] = await this.classRepository.findAndCount();
+      res.status(HttpStatus.OK).json({count, data:classes});
     } catch (error) {
       next(error);
       throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);

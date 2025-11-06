@@ -44,8 +44,8 @@ export class UserController{
 
     async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
-      const users = await this.userRepository.find();
-      res.status(HttpStatus.OK).json(users);
+      const [users, count] = await this.userRepository.findAndCount();
+      res.status(HttpStatus.OK).json({count, data:users});
     } catch (error) {
       next(error);
       throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -48,8 +48,8 @@ export class AccommodationController{
 
     async getAllAccommodations(req: Request, res: Response, next: NextFunction) {
     try {
-      const accommodations = await this.accommodationRepository.find();
-      res.status(HttpStatus.OK).json(accommodations);
+      const [accommodations, count ] = await this.accommodationRepository.findAndCount();
+      res.status(HttpStatus.OK).json({ count, data: accommodations});
     } catch (error) {
       next(error);
       throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);

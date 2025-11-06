@@ -23,9 +23,9 @@ export class RegionService{
         }
     }
 
-    async getAllRegions(): Promise<Region[]> {
+    async getAllRegions(): Promise<[Region[], count:number]> {
         try {
-            return await this.regionRepository.find();
+            return await this.regionRepository.findAndCount();
         } catch (error) {
             logger.error('Failed to fetch regions', { error });
             throw new AppError('Failed to fetch regions', HttpStatus.INTERNAL_SERVER_ERROR);
