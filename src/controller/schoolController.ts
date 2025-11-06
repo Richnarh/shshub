@@ -1,35 +1,38 @@
 import { DataSource, EntityManager, Repository } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import path from "path";
+import * as fs from 'fs';
 
 import { School } from "../entities/school.entity.js";
 import { DefaultService } from "../services/defaultService.js";
 import { AppError } from "../utils/errors.js";
 import { HttpStatus } from "../utils/constants.js";
 import { logger } from "../utils/logger.js";
-import { SchoolRecord } from "../models/model.js";
+import { Gender, Residency, SchoolRecord } from "../models/model.js";
 import { parseCSV, parseExcel } from "../utils/utils.js";
 import { HomeTown } from "../entities/hometown.entity.js";
+import { District } from "../entities/district.entity.js";
+import { UploadRequest } from "../config/multerConfig.js";
 
 export class SchoolController{
     private schoolRepository:Repository<School>;
-    private hometownRepository:Repository<HomeTown>;
+    private districtRepository:Repository<District>;
     private readonly ds:DefaultService;
     constructor(dataSource:DataSource){
         this.schoolRepository = dataSource.getRepository(School);
-        this.hometownRepository = dataSource.getRepository(HomeTown);
+        this.districtRepository = dataSource.getRepository(District);
         this.ds = new DefaultService(dataSource);
     }
 
     createSchoolInHometown = async(req:Request, res:Response, next:NextFunction) => {
         try {
             const data = req.body;
-            const { hometownId } = req.params;
-            if(!hometownId){
-                throw new AppError('HometownId is required', HttpStatus.BAD_REQUEST);
+            const { districtId } = req.params;
+            if(!districtId){
+                throw new AppError('districtId is required', HttpStatus.BAD_REQUEST);
             }
-            const hometown = await this.ds.getHometownById(parseInt(hometownId));
-            data.hometown = hometown;
+            const district = await this.ds.getDistrictById(parseInt(districtId));
+            data.district = district;
             const payload = this.schoolRepository.create(data);
             const result = await this.schoolRepository.save(payload);
             res.status(req.method === 'POST' ? HttpStatus.CREATED : HttpStatus.OK).json(result);
@@ -40,14 +43,14 @@ export class SchoolController{
         }
     }
 
-    getSchoolInHometown = async (req: Request, res: Response, next: NextFunction)=>{
+    getSchoolsInDistrict = async (req: Request, res: Response, next: NextFunction)=>{
         try {
-            const { hometownId } = req.params;
-            if (!hometownId) {
-                return res.status(HttpStatus.BAD_REQUEST).json({ message: 'HometownId is required' });
+            const { districtId } = req.params;
+            if (!districtId) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ message: 'DistrictId is required' });
             }
             const school =  await this.schoolRepository.find({
-                where: { hometown: { id: parseInt(hometownId) } }
+                where: { district: { id: parseInt(districtId) } }
             });
             res.status(HttpStatus.OK).json(school);
         } catch (error) {
@@ -75,12 +78,12 @@ export class SchoolController{
 
     async getSchoolById(req: Request, res: Response, next: NextFunction) {
         try {
-            const { id, hometownId } = req.params;
+            const { id, districtId } = req.params;
             if (!id) {
                 throw new AppError('SchoolId is required', HttpStatus.BAD_REQUEST);
             }
-            if (!hometownId) {
-                throw new AppError('HometownId is required', HttpStatus.BAD_REQUEST);
+            if (!districtId) {
+                throw new AppError('DistrictId is required', HttpStatus.BAD_REQUEST);
             }
             const school = await this.schoolRepository.findOne({ where: { id: parseInt(id) } });
             if (!school) {
@@ -93,18 +96,18 @@ export class SchoolController{
         }
     }
 
-    async deleteSchoolInHometown(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async deleteSchoolInDistrict(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { hometownId } = req.params;
-            if (!hometownId) {
+            const { districtId } = req.params;
+            if (!districtId) {
                 throw new AppError('Region ID is required', HttpStatus.BAD_REQUEST);
             }
-            const parsedhometownId = parseInt(hometownId, 10);
-            if (isNaN(parsedhometownId)) {
-                throw new AppError( 'Invalid Region ID', HttpStatus.BAD_REQUEST);
+            const parsedDistrictId = parseInt(districtId, 10);
+            if (isNaN(parsedDistrictId)) {
+                throw new AppError( 'Invalid District ID', HttpStatus.BAD_REQUEST);
             }
             const deleteResult = await this.schoolRepository.delete({
-                hometown: { id: parsedhometownId }
+                district: { id: parsedDistrictId }
             });
             if (deleteResult.affected === 0) {
                 throw new AppError('No schools found for the given region', HttpStatus.BAD_REQUEST);
@@ -116,7 +119,7 @@ export class SchoolController{
         }
     }
 
-    async uploadSchools(req: Request, res: Response, next: NextFunction) {
+    async uploadSchools(req: UploadRequest, res: Response, next: NextFunction) {
         try {
             if (!req.file) {
                 throw new AppError('File is required', HttpStatus.BAD_REQUEST);
@@ -132,42 +135,56 @@ export class SchoolController{
             } else {
                 throw new AppError('Unsupported file format', HttpStatus.BAD_REQUEST);
             }
-            const hometownMap: { [hometownName: string]: number | null | undefined } = {};
+            const districtMap: { [districtName: string]: number | null | undefined } = {};
             for (const record of records) {
-                if(!hometownMap[record.Hometown]){
-                    let hometown = await this.hometownRepository.findOne({ where: { name: record.Hometown }});
-                    if(!hometown){
-                        hometown = new HomeTown();
-                        hometown.name = record.Hometown;
-                        const result = this.hometownRepository.create(hometown);
-                        hometown = await this.hometownRepository.save(result);
+                try {
+                    if(!districtMap[record.District]){
+                    let district = await this.districtRepository.findOne({ where: { name: record.District }});
+                    if(!district){
+                        district = new District();
+                        district.name = record.District;
+                        const result = this.districtRepository.create(district);
+                        district = await this.districtRepository.save(result);
                     }
-                    hometownMap[record.Hometown.replace('/\n\g','')] = hometown ? hometown.id : null;
+                    districtMap[record.District] = district ? district.id : null;
+                }
+                } catch (error) {
+                    console.error(error);
                 }
             }
-            try {
-                await this.schoolRepository.manager.transaction(async (transaction:EntityManager) => {
-                     const saveRecords = records.map(async (record:SchoolRecord) => {
-                        const hometownId = hometownMap[record.Hometown];
-                        if (!hometownId) {
-                            throw new AppError(`hometown Not found for: ${record.Hometown}`, HttpStatus.BAD_REQUEST);
-                        }
-                        const school = new School();
-                        school.name = record.School;
-                        school.hometown = await this.hometownRepository.findOne({ where: { name: record.Hometown }}) || undefined; 
-                        return transaction.save(School, school);
+            const toGender = (value: string): Gender => value.toUpperCase() as Gender;
+            const toResidency = (value: string): Residency => value.replace('/','_').toUpperCase() as Residency;
+            await this.schoolRepository.manager.transaction(async (transaction:EntityManager) => {
+                for (const record of records) {
+                    const districtId = districtMap[record.District];
+                    if (!districtId) {
+                        throw new AppError(`District Not found for: ${record.District}`, HttpStatus.BAD_REQUEST);
+                    }
+                    const school = new School();
+                    school.name = record.School;
+                    school.district = await this.districtRepository.findOne({ where: { name: record.District }}) || undefined; 
+                    school.residency = toResidency(record.Residency);
+                    school.gender = toGender(record.Gender);
+                    school.location = record.Location;
+                    school.emailAddress = record.EmailAddress
+                    await transaction.save(School, school);
+                }
                     });
-                    await Promise.all(saveRecords);
-                });
-            } catch (error) {
-                logger.error(error);
-                throw new AppError(`upload error: ${error}`, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
             res.status(HttpStatus.CREATED).json({count:records.length, message:'File upload successful'});
         } catch (error) {
             logger.error(error);
             next(error);
             throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }finally{
+            const uploadDir = req.uploadDir;
+            if (uploadDir) {
+                try {
+                    await fs.promises.rm(uploadDir, { recursive: true, force: true });
+                } catch (cleanupErr) {
+                    console.error("Error deleting upload folder:", cleanupErr);
+                    next(cleanupErr);
+                }
+            }
         }
     }
 }

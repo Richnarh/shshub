@@ -21,13 +21,18 @@ export interface DistrictRecord{
 }
 
 export interface SchoolRecord{
-  Hometown:string;
+  District:string;
   School:string;
+  Location:string;
+  Gender:string;
+  Residency:string;
+  EmailAddress:string;
 }
 
 export enum Gender {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
+  MIXED = 'MIXED'
 }
 
 export enum Faith {
@@ -57,6 +62,12 @@ export enum SecondGuardian {
 export enum Status {
   DAY = 'DAY',
   BOARDING = 'BOARDING',
+}
+
+export enum Residency{
+  DAY = 'DAY',
+  BOARDING = 'BOARDING',
+  DAY_BOARDING = 'DAY_BOARDING'
 }
 
 export enum Track {
