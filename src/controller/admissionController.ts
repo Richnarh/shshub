@@ -3,6 +3,8 @@ import { AdmissionService } from "../services/admissionService.js";
 import { HttpStatus } from "../utils/constants.js";
 import { AppError } from "../utils/errors.js";
 import { NextFunction, Request, Response } from "express";
+import * as fs from 'fs';
+import { UploadRequest } from "../config/multerConfig.js";
 
 export class AdmissionController {
   private admissionService: AdmissionService;
@@ -79,7 +81,7 @@ export class AdmissionController {
     }
   }
 
-  async uploadAdmissions(req: Request, res: Response, next: NextFunction) {
+  async uploadAdmissions(req: UploadRequest, res: Response, next: NextFunction) {
     try {
       if (!req.file) {
         throw new AppError('File is required', HttpStatus.BAD_REQUEST);
@@ -89,6 +91,16 @@ export class AdmissionController {
     } catch (error) {
       next(error);
       throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }finally{
+        const uploadDir = req.uploadDir;
+        if (uploadDir) {
+            try {
+                await fs.promises.rm(uploadDir, { recursive: true, force: true });
+            } catch (cleanupErr) {
+                console.error("Error deleting upload folder:", cleanupErr);
+                next(cleanupErr);
+            }
+        }
     }
   }
 } 
