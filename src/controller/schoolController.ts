@@ -10,7 +10,6 @@ import { HttpStatus } from "../utils/constants.js";
 import { logger } from "../utils/logger.js";
 import { Gender, Residency, SchoolRecord } from "../models/model.js";
 import { parseCSV, parseExcel } from "../utils/utils.js";
-import { HomeTown } from "../entities/hometown.entity.js";
 import { District } from "../entities/district.entity.js";
 import { UploadRequest } from "../config/multerConfig.js";
 
@@ -50,7 +49,14 @@ export class SchoolController{
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: 'DistrictId is required' });
             }
             const [school, count] =  await this.schoolRepository.findAndCount({
-                where: { district: { id: parseInt(districtId) } }
+                select: ['id', 'name'],
+                relations:['district'],
+                order: { name: 'ASC' },
+                where: { 
+                    district: { 
+                        id: parseInt(districtId) 
+                    } 
+                }
             });
             res.status(HttpStatus.OK).json({ count, data: school});
         } catch (error) {
@@ -59,6 +65,20 @@ export class SchoolController{
         }
     }
  
+    getSchools = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const [schools, count] =  await this.schoolRepository.findAndCount({ 
+                select: ['id', 'name'], 
+                relations:['district'],
+                order: { name: 'ASC' } 
+            });
+            res.status(HttpStatus.OK).json({count, data:schools});
+        } catch (error) {
+            next(error);
+            throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     async deleteSchoolById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
@@ -85,7 +105,11 @@ export class SchoolController{
             if (!districtId) {
                 throw new AppError('DistrictId is required', HttpStatus.BAD_REQUEST);
             }
-            const school = await this.schoolRepository.findOne({ where: { id: parseInt(id) } });
+            const school = await this.schoolRepository.findOne({ where: 
+                { id: parseInt(id) }, 
+                select: ['id', 'name'], 
+                relations:['district']
+            });
             if (!school) {
                 return res.status(HttpStatus.NOT_FOUND).json({ message: 'School not found' });
             }
@@ -169,7 +193,7 @@ export class SchoolController{
                     school.emailAddress = record.EmailAddress
                     await transaction.save(School, school);
                 }
-                    });
+                });
             res.status(HttpStatus.CREATED).json({count:records.length, message:'File upload successful'});
         } catch (error) {
             logger.error(error);

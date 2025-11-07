@@ -10,6 +10,7 @@ export const setupSchoolRoutes = (dataSource: DataSource) => {
     router.post('/:districtId', schoolController.createSchoolInHometown.bind(schoolController));
     router.put('/:districtId', schoolController.createSchoolInHometown.bind(schoolController));
     router.get('/:districtId', schoolController.getSchoolsInDistrict.bind(schoolController));
+    router.get('/', schoolController.getSchools.bind(schoolController));
     router.delete('/:districtId', schoolController.deleteSchoolInDistrict.bind(schoolController));
     router.get('/:districtId/school/:id', schoolController.getSchoolById.bind(schoolController));
     router.delete('/:districtId/school/:id', schoolController.deleteSchoolById.bind(schoolController));

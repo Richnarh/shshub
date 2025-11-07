@@ -1,13 +1,12 @@
 import { DataSource } from "typeorm";
 import express from 'express';
 import { DistrictController } from "../controller/districtController.js";
-import multer from "multer";
+import { upload } from "../config/multerConfig.js";
 
 
 export const setupDistrictRoutes = (dataSource:DataSource) => {
     const router = express.Router();
     const districtController = new DistrictController(dataSource);
-    const upload = multer({ dest: 'uploads/' });
     router.post('/:regionId', districtController.createDistrictsInRegion.bind(districtController));
     router.put('/:regionId', districtController.createDistrictsInRegion.bind(districtController));
     router.get('/:regionId', districtController.getDistrictsInRegion.bind(districtController));

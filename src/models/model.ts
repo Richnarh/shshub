@@ -90,3 +90,8 @@ export enum UserStatus{
   PENDING = 'PENDING',
   SUSPENDED = 'SUSPENDED'
 }
+
+export enum Creator{
+  SYSTEM = 'SYSTEM',
+  ADMIN = 'ADMIN'
+}

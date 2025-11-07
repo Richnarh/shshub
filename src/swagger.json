@@ -1475,9 +1475,42 @@
         }
       }
     },
-    "/api/v1/schools/{hometownId}": {
+    "/api/v1/schools": {
+      "get": {
+        "summary": "Get schools",
+        "tags": ["Schools"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schools",
+            "content": {
+              "application/json": {
+                "schema": { "type": "number", "$ref":"#/components/schemas/School" }
+              }
+            }
+          },
+          "404": {
+            "description": "School not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{districtId}": {
       "post": {
-        "summary": "Add a new school to a hometown",
+        "summary": "Add a new school to a district",
         "tags": ["Schools"],
         "requestBody": {
           "required": true,
@@ -1502,7 +1535,7 @@
         }
       },
       "put": {
-        "summary": "Update an existing School in a region",
+        "summary": "Update an existing School in a district",
         "tags": ["Schools"],
         "requestBody": {
           "required": true,
@@ -1594,7 +1627,7 @@
         }
       }
     },
-    "/api/v1/schools/{hometownId}/school/{id}": {
+    "/api/v1/schools/{districtId}/school/{id}": {
       "get": {
         "summary": "Get school by ID",
         "tags": ["Schools"],

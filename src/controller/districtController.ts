@@ -1,14 +1,16 @@
 import { NextFunction,Request,Response } from "express";
-import { DataSource, EntityManager, Repository } from "typeorm";
+import { DataSource, EntityManager, In, Repository } from "typeorm";
 import { District } from "../entities/district.entity.js";
 import { logger } from "../utils/logger.js";
 import { AppError } from "../utils/errors.js";
 import { HttpStatus } from "../utils/constants.js";
 import { DefaultService } from "../services/defaultService.js";
 import path from "path";
-import { DistrictRecord } from "../models/model.js";
+import * as fs from 'fs';
+import { Creator, DistrictRecord } from "../models/model.js";
 import { parseCSV, parseExcel } from "../utils/utils.js";
 import { Region } from "../entities/region.entity.js";
+import { UploadRequest } from "../config/multerConfig.js";
 
 export class DistrictController{
     private readonly districtRepository:Repository<District>;
@@ -46,7 +48,10 @@ export class DistrictController{
                 return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Region ID is required' });
             }
             const [districts, count] =  await this.districtRepository.findAndCount({
-                where: { region: { id: parseInt(regionId) } }
+                where: { region: { id: parseInt(regionId) } },
+                select: ['id', 'name'], 
+                relations: ['region'],
+                order: { name: 'ASC' } 
             });
             res.status(HttpStatus.OK).json({count, data:districts});
         } catch (error) {
@@ -59,6 +64,7 @@ export class DistrictController{
         try {
             const [districts, count] =  await this.districtRepository.findAndCount({ 
                 select: ['id', 'name'], 
+                relations: ['region'],
                 order: { name: 'ASC' } 
             });
             res.status(HttpStatus.OK).json({count, data:districts});
@@ -128,7 +134,7 @@ export class DistrictController{
         }
     }
 
-    async uploadDistricts(req: Request, res: Response, next: NextFunction) {
+    async uploadDistricts(req: UploadRequest, res: Response, next: NextFunction) {
         try {
             if (!req.file) {
                 throw new AppError('File is required', HttpStatus.BAD_REQUEST);
@@ -151,15 +157,18 @@ export class DistrictController{
                     if(!region){
                         region = new Region();
                         region.name = record.Region;
+                        region.createdBy = Creator.SYSTEM;
+                        region.updatedBy = Creator.SYSTEM;
                         const result = this.regionRepository.create(region);
                         region = await this.regionRepository.save(result);
                     }
                     regionMap[record.Region.replace(/\n/g,'').trim()] = region ? region.id : null;
                 }
             }
-            try {
+             const uniqueDistricts = Array.from(new Map(records.map(item => [`${item.Region}-${item.District}`, item])).values());
                 await this.districtRepository.manager.transaction(async (transaction:EntityManager) => {
-                     const saveRecords = records.map(async (record:DistrictRecord) => {
+                for(const record of uniqueDistricts){
+                    try {
                         const regionId = regionMap[record.Region];
                         if (!regionId) {
                             throw new AppError(`Region Not found for: ${record.Region}`, HttpStatus.BAD_REQUEST);
@@ -167,19 +176,33 @@ export class DistrictController{
                         const district = new District();
                         district.name = record.District;
                         district.region = await this.regionRepository.findOne({ where: { name: record.Region }}) || undefined; 
-                        return transaction.save(District, district);
-                    });
-                    await Promise.all(saveRecords);
+                        district.createdBy = Creator.SYSTEM,
+                        district.updatedBy = Creator.SYSTEM,
+                        await transaction.save(District, district);
+                        } catch (error:any) {
+                            if (error.code === '23505') {
+                                logger.warn(`Duplicate district skipped: ${record.District}`);
+                                continue;
+                            }
+                            throw error;
+                        }
+                    }
                 });
-            } catch (error) {
-                logger.error(error);
-                throw new AppError(`upload error: ${error}`, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
             res.status(HttpStatus.CREATED).json({count:records.length, message:'File upload successful'});
         } catch (error) {
             console.log(error);
             next(error);
             throw new AppError(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }finally{
+            const uploadDir = req.uploadDir;
+            if (uploadDir) {
+                try {
+                    await fs.promises.rm(uploadDir, { recursive: true, force: true });
+                } catch (cleanupErr) {
+                    console.error("Error deleting upload folder:", cleanupErr);
+                    next(cleanupErr);
+                }
+            }
         }
     }
 }
